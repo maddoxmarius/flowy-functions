@@ -10,6 +10,7 @@ export interface Task {
   startTime?: Date | null;
   duration?: number | null;
   order: number
+  pomodoroCount: number
   // pomodoros: Pomodoro[]
 }
 
@@ -77,6 +78,7 @@ export function fromTaskToObject(task: Task): Record<string, any> {
       null,
     duration: task.duration ?? null,
     order: task.order ?? 0,
+    pomodoroCount: task.pomodoroCount ?? 0,
   };
 }
 
@@ -96,6 +98,7 @@ export function fromObjectToTask(data: firestore.DocumentData): Task {
     startTime: data.startTime?.toDate(),
     duration: data.duration ?? null,
     order: data.order ?? 0,
+    pomodoroCount: data.pomodoroCount ?? 0,
   };
 }
 

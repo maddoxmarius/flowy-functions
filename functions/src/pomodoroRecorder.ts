@@ -68,7 +68,10 @@ async function handleUpdateTask(change: Change<firestore.DocumentSnapshot>) {
         .firestore()
         .collection("tasks")
         .doc(task.id)
-        .set({state: TaskState.BREAK_NOT_STARTED.name}, {merge: true});
+        .set({
+          state: TaskState.BREAK_NOT_STARTED.name,
+          pomodoroCount: admin.firestore.FieldValue.increment(1),
+        }, {merge: true});
   } if (task.state.name === TaskState.BREAK_DONE.name) {
     await admin
         .firestore()

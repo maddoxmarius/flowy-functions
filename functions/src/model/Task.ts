@@ -4,6 +4,7 @@ import {firestore} from "firebase-admin";
 export interface Task {
   id: string;
   title: string;
+  taskListId: string,
   state: TaskState;
   uid: string;
   created?: Date;
@@ -70,6 +71,7 @@ export function fromTaskToObject(task: Task): Record<string, any> {
   return {
     id: task.id,
     title: task.title,
+    taskListId: task.taskListId,
     state: task.state.name,
     uid: task.uid,
     created: task.created ?? firestore.FieldValue.serverTimestamp(),
@@ -92,6 +94,7 @@ export function fromObjectToTask(data: firestore.DocumentData): Task {
   return {
     id: data.id,
     title: data.title,
+    taskListId: data.taskListId,
     state: TaskState.parseEnum(data.state),
     uid: data.uid,
     created: data.created?.toDate(),

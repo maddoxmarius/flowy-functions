@@ -2,9 +2,9 @@ import {firestore} from "firebase-admin";
 // import {getFunctions} from "firebase-admin/functions";
 import * as functions from "firebase-functions";
 import {Change, CloudFunction, logger} from "firebase-functions";
-import {fromObjectToTask, TaskState} from "./model/Task";
+import {fromObjectToTask, TaskState} from "../model/Task";
 import * as admin from "firebase-admin";
-import {Pomodoro, pomodoroConverter} from "./model/Pomodoro";
+import {Pomodoro, pomodoroConverter} from "../model/Pomodoro";
 
 /**
  * Publishes the property if needed
@@ -16,7 +16,7 @@ export function pomodoroRecorderOperation(): CloudFunction<
   Change<FirebaseFirestore.QueryDocumentSnapshot>
   > {
   return functions.firestore
-      .document("tasks/{taskId}")
+      .document("users/{userId}/taskLists/{taskListId}/tasks/{taskId}")
       .onUpdate(
           async (
               change: Change<firestore.QueryDocumentSnapshot>
@@ -44,7 +44,7 @@ async function handleUpdateTask(change: Change<firestore.DocumentSnapshot>) {
   let startTime;
   let duration;
   if (beforeData) {
-    const beforeTask= fromObjectToTask(beforeData);
+    const beforeTask = fromObjectToTask(beforeData);
     startTime = beforeTask.startTime;
     duration = beforeTask.duration;
   }
@@ -68,11 +68,15 @@ async function handleUpdateTask(change: Change<firestore.DocumentSnapshot>) {
         .firestore()
         .collection("tasks")
         .doc(task.id)
-        .set({
-          state: TaskState.BREAK_NOT_STARTED.name,
-          pomodoroCount: admin.firestore.FieldValue.increment(1),
-        }, {merge: true});
-  } if (task.state.name === TaskState.BREAK_DONE.name) {
+        .set(
+            {
+              state: TaskState.BREAK_NOT_STARTED.name,
+              pomodoroCount: admin.firestore.FieldValue.increment(1),
+            },
+            {merge: true}
+        );
+  }
+  if (task.state.name === TaskState.BREAK_DONE.name) {
     await admin
         .firestore()
         .collection("tasks")

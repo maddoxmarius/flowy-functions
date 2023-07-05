@@ -1,7 +1,8 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
-import {pomodoroRecorderOperation} from "./pomodoroRecorder";
-import {pomodoroTaskOperation} from "./pomodoroTask";
+import {userOnCreateOperation} from "./operations/onUserCreate";
+import {pomodoroRecorderOperation} from "./operations/pomodoroRecorder";
+import {pomodoroTaskOperation} from "./operations/pomodoroTask";
 
 admin.initializeApp(functions.config().firebase);
 // // Start writing functions
@@ -15,3 +16,4 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 
 export const pomodoroRecorder = pomodoroRecorderOperation();
 export const pomodoroTask = pomodoroTaskOperation();
+export const onUserCreate = userOnCreateOperation();

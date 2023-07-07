@@ -34,7 +34,6 @@ export function pomodoroRecorderOperation(): CloudFunction<
  * @param {firestore.DocumentSnapshot} change
  */
 async function handleUpdateTask(change: Change<firestore.DocumentSnapshot>) {
-  logger.info("change", change);
   const data = change.after.data();
   if (!data) return;
   const task = fromObjectToTask(data);
@@ -50,11 +49,12 @@ async function handleUpdateTask(change: Change<firestore.DocumentSnapshot>) {
   }
 
   if (task.state.name === TaskState.FOCUS_DONE.name) {
-    logger.info("counting pomodoro for taskId={}", task.id);
+    logger.info("counting pomodoro for taskId", task.id);
     const pomodoro: Pomodoro = {
       id: admin.firestore().collection("pomodoros").doc().id,
       taskId: task.id ?? "", // this should never happen
       uid: task.uid,
+      taskListId: task.taskListId,
       created: null,
       duration: duration,
       startTime: startTime,
@@ -66,6 +66,10 @@ async function handleUpdateTask(change: Change<firestore.DocumentSnapshot>) {
         .add(pomodoro);
     await admin
         .firestore()
+        .collection("users")
+        .doc(task.uid)
+        .collection("taskLists")
+        .doc(task.taskListId)
         .collection("tasks")
         .doc(task.id)
         .set(
@@ -75,10 +79,13 @@ async function handleUpdateTask(change: Change<firestore.DocumentSnapshot>) {
             },
             {merge: true}
         );
-  }
-  if (task.state.name === TaskState.BREAK_DONE.name) {
+  } else if (task.state.name === TaskState.BREAK_DONE.name) {
     await admin
         .firestore()
+        .collection("users")
+        .doc(task.uid)
+        .collection("taskLists")
+        .doc(task.taskListId)
         .collection("tasks")
         .doc(task.id)
         .set({state: TaskState.FOCUS_NOT_STARTED.name}, {merge: true});

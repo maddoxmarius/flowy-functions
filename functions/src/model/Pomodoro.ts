@@ -5,6 +5,7 @@ export interface Pomodoro {
   taskId: string;
   created: Date | null;
   uid: string;
+  taskListId: string;
   startTime?: Date | null;
   duration?: number | null;
 }
@@ -19,6 +20,7 @@ export function fromPomodoroToObject(pomodoro: Pomodoro): Record<string, any> {
   return {
     id: pomodoro.id,
     taskId: pomodoro.taskId,
+    taskListId: pomodoro.taskListId,
     created: pomodoro.created ?
       admin.firestore.Timestamp.fromDate(pomodoro.created) :
       admin.firestore.FieldValue.serverTimestamp(),
@@ -40,6 +42,7 @@ export function fromObjectToPomodoro(data: Record<string, any>): Pomodoro {
   return {
     id: data.id,
     taskId: data.taskId,
+    taskListId: data.taskListId,
     created: data.created?.toDate?.() ?? null,
     uid: data.uid,
     startTime: data.startTime?.toDate?.() ?? null,
